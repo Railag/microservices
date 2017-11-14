@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GatewayController {
 
     @Autowired
-    private UserRepository userRepository;
+    private GatewayUserRepository gatewayUserRepository;
 
     @RequestMapping(path = "/add")
     public @ResponseBody
@@ -20,22 +20,22 @@ public class GatewayController {
                       @RequestParam String token,
                       @RequestParam(defaultValue = "") String application) {
 
-        User n = new User(name, token, application);
-        userRepository.save(n);
+        GatewayUser n = new GatewayUser(name, token, application);
+        gatewayUserRepository.save(n);
 
         return token;
     }
 
     @RequestMapping(path = "/all")
     public @ResponseBody
-    Iterable<User> getAllUsers() {
-        return userRepository.findAll();
+    Iterable<GatewayUser> getAllUsers() {
+        return gatewayUserRepository.findAll();
     }
 
     @RequestMapping(path = "/findUserByToken")
     public @ResponseBody
-    User findUserByToken(@RequestParam String token) {
-        User user = userRepository.findByToken(token);
+    GatewayUser findUserByToken(@RequestParam String token) {
+        GatewayUser user = gatewayUserRepository.findByToken(token);
         if (user != null) {
             return user;
         } else {

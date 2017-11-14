@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Random;
 
 @Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private long id;
     private String username;
     private String token;
@@ -35,7 +36,8 @@ public class User {
         int id = random.nextInt(100);
         notifications = new ArrayList<>();
         notifications.add("You have been promoted!");
-        notifications.add("Sorry, disregard the previous notifaction- wrong user");
+        notifications.add("You have been promoted!");
+        notifications.add("Sorry, disregard the previous notification - wrong user");
         points = id * 31 % 1000;
 
         this.id = id;

@@ -14,4 +14,3 @@ public class FindUser extends User {
         super(name, token, application);
     }
 }
-

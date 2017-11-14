@@ -1,6 +1,5 @@
 package com.firrael.test;
 
-import com.firrael.base.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @Autowired
-    private UserRepository userRepository;
+    private TestUserRepository testUserRepository;
 
     @RequestMapping(path = "/add")
     public @ResponseBody
@@ -20,16 +19,16 @@ public class TestController {
                       @RequestParam String token,
                       @RequestParam(defaultValue = "") String application) {
 
-        User n = new User(name, token, application);
-        userRepository.save(n);
+        TestUser n = new TestUser(name, token, application);
+        testUserRepository.save(n);
 
         return token;
     }
 
     @RequestMapping(path = "/findUserByToken")
     public @ResponseBody
-    User findUserByToken(@RequestParam String token) {
-        User user = userRepository.findByToken(token);
+    TestUser findUserByToken(@RequestParam String token) {
+        TestUser user = testUserRepository.findByToken(token);
         if (user != null) {
             return user;
         } else {

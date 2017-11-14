@@ -18,10 +18,6 @@ public enum Group {
         return applications;
     }
 
-    public void setApplications(String[] applications) {
-        this.applications = applications;
-    }
-
     public static Group findGroupOfApplication(String application) {
         for (Group group : Group.values()) {
             if (Arrays.asList(group.getApplications()).contains(application)) {

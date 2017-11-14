@@ -16,7 +16,9 @@ import static com.firrael.base.Constants.GATEWAY_HOST;
 public class TokenController {
 
     @Autowired
-    private UserRepository userRepository;
+    private TokenUserRepository tokenUserRepository;
+
+    @Autowired TokenAppInfoRepository tokenAppInfoRepository;
 
     @RequestMapping(path = "/add")
     public @ResponseBody
@@ -27,11 +29,14 @@ public class TokenController {
         String token = generateToken(password);
 
         if (application.equalsIgnoreCase("token")) {
-            User n = new User(name, token, application);
-            userRepository.save(n);
+            TokenUser n = new TokenUser(name, token, application);
+            tokenUserRepository.save(n);
         } else {
             RestTemplate template = new RestTemplate();
             String response = template.getForObject(GATEWAY_HOST + application + "/add?name=" + name + "&token=" + token + "&application=" + application, String.class);
+
+            TokenAppInfo tokenAppInfo = new TokenAppInfo(token, application);
+            tokenAppInfoRepository.save(tokenAppInfo);
             // TODO handle response
         }
 
@@ -46,16 +51,16 @@ public class TokenController {
 
     @RequestMapping(path = "/all")
     public @ResponseBody
-    Iterable<User> getAllUsers() {
-        return userRepository.findAll();
+    Iterable<TokenUser> getAllUsers() {
+        return tokenUserRepository.findAll();
     }
 
     @RequestMapping(path = "/findApplicationByToken")
     public @ResponseBody
     String findApplicationByToken(@RequestParam String token) {
-        User user = userRepository.findByToken(token);
-        if (user != null) {
-            return user.getApplication();
+        TokenAppInfo info = tokenAppInfoRepository.findByToken(token);
+        if (info != null) {
+            return info.getApplication();
         } else {
             return "";
         }
@@ -64,7 +69,7 @@ public class TokenController {
     @RequestMapping(path = "/findUserByToken")
     public @ResponseBody
     User findUserByToken(@RequestParam String token) {
-        User user = userRepository.findByToken(token);
+        User user = tokenUserRepository.findByToken(token);
         if (user != null) {
             return user;
         } else {

@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 
 @EnableZuulProxy
 @SpringBootApplication
-@EntityScan("com.firrael.base")
 public class GatewayApplication {
 
     public static void main(String[] args) {

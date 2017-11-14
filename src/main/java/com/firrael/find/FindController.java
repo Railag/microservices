@@ -1,6 +1,7 @@
 package com.firrael.find;
 
 import com.firrael.base.Group;
+import com.firrael.base.SimpleUserRepository;
 import com.firrael.base.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.firrael.base.Constants.GATEWAY_HOST;
 
@@ -18,8 +21,12 @@ import static com.firrael.base.Constants.GATEWAY_HOST;
 @RequestMapping(path = "/")
 public class FindController {
 
+    private final SimpleUserRepository findUserRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public FindController(SimpleUserRepository findUserRepository) {
+        this.findUserRepository = findUserRepository;
+    }
 
     @RequestMapping(path = "/add")
     public @ResponseBody
@@ -28,7 +35,7 @@ public class FindController {
                       @RequestParam(defaultValue = "") String application) {
 
         FindUser n = new FindUser(name, token, application);
-        userRepository.save(n);
+        findUserRepository.save(n);
 
         return token;
     }
@@ -39,7 +46,6 @@ public class FindController {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        System.out.println("FIND TEST");
         String application = restTemplate.getForObject(GATEWAY_HOST + "token/findApplicationByToken?token=" + token, String.class);
         if (application == null || application.isEmpty()) {
             return new ArrayList<>();
@@ -58,22 +64,31 @@ public class FindController {
             }
         }
 
-        return users;
-        /*String json = ;
+        List<String> notifications = users
+                .stream()
+                .map(User::getNotifications)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
 
-        return json;*/
+        String result = notifications
+                .stream()
+                .reduce("", (str, str2) -> str + "\n" + str2);
+        System.out.println(result);
+
+        return users;
     }
 
     @RequestMapping(path = "/all")
     public @ResponseBody
-    Iterable<FindUser> getAllUsers() {
-        return userRepository.findAll();
+    Iterable<User> getAllUsers() {
+        return findUserRepository.findAll();
     }
 
     @RequestMapping(path = "/findUserByToken")
     public @ResponseBody
-    FindUser findUserByToken(@RequestParam String token) {
-        FindUser user = userRepository.findByToken(token);
+    User findUserByToken(@RequestParam String token) {
+        User user = findUserRepository.findByToken(token);
         if (user != null) {
             return user;
         } else {

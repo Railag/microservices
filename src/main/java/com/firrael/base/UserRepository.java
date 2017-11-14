@@ -1,6 +1,5 @@
-package com.firrael.gateway;
+package com.firrael.base;
 
-import com.firrael.base.User;
 import org.springframework.data.repository.CrudRepository;
 
 public interface UserRepository extends CrudRepository<User, Long> {
