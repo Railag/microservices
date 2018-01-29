@@ -2,10 +2,7 @@ package com.firrael.token;
 
 import jdk.nashorn.internal.parser.Token;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class TokenAppInfo {
@@ -14,13 +11,19 @@ public class TokenAppInfo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @Column(unique = true)
+    private String username;
+
+    @Column(unique = true)
     private String token;
+
     private String application;
 
     public TokenAppInfo() {
     }
 
-    public TokenAppInfo(String token, String application) {
+    public TokenAppInfo(String username, String token, String application) {
+        this.username = username;
         this.token = token;
         this.application = application;
     }
@@ -47,5 +50,13 @@ public class TokenAppInfo {
 
     public void setApplication(String application) {
         this.application = application;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

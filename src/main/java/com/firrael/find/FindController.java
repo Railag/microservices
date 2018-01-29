@@ -1,8 +1,11 @@
 package com.firrael.find;
 
-import com.firrael.base.Group;
-import com.firrael.base.SimpleUserRepository;
-import com.firrael.base.User;
+import com.firrael.base.*;
+import com.firrael.base.response.AddResponse;
+import com.firrael.base.response.ApplicationResponse;
+import com.firrael.base.response.FindByTokenResponse;
+import com.firrael.base.response.UserResponse;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,34 +24,38 @@ import static com.firrael.base.Constants.GATEWAY_HOST;
 @RequestMapping(path = "/")
 public class FindController {
 
-    private final SimpleUserRepository findUserRepository;
+    private final FindUserRepository findUserRepository;
 
     @Autowired
-    public FindController(SimpleUserRepository findUserRepository) {
-        this.findUserRepository = findUserRepository;
+    public FindController(UserRepository userRepository) {
+        this.findUserRepository = new FindUserRepository(userRepository);
     }
 
     @RequestMapping(path = "/add")
     public @ResponseBody
-    String addNewUser(@RequestParam String name,
-                      @RequestParam String token,
-                      @RequestParam(defaultValue = "") String application) {
+    AddResponse addNewUser(@RequestParam String name,
+                           @RequestParam String token,
+                           @RequestParam(defaultValue = "") String application) {
 
         FindUser n = new FindUser(name, token, application);
         findUserRepository.save(n);
 
-        return token;
+
+        AddResponse response = new AddResponse();
+        response.setToken(token);
+        return response;
     }
 
     @RequestMapping(path = "/findByToken")
     public @ResponseBody
-    List<User> findUsersByToken(@RequestParam String token) {
+    FindByTokenResponse findUsersByToken(@RequestParam String token) throws InvalidArgumentException {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        String application = restTemplate.getForObject(GATEWAY_HOST + "token/findApplicationByToken?token=" + token, String.class);
+        ApplicationResponse applicationResponse = restTemplate.getForObject(GATEWAY_HOST + "token/findApplicationByToken?token=" + token, ApplicationResponse.class);
+        String application = applicationResponse.getApplication();
         if (application == null || application.isEmpty()) {
-            return new ArrayList<>();
+            throw new InvalidArgumentException(new String[]{"No application provided"});
         }
 
         Group group = Group.findGroupOfApplication(application);
@@ -58,7 +65,8 @@ public class FindController {
         for (String app : group.getApplications()) {
             String query = GATEWAY_HOST + app + "/findUserByToken?token=" + token;
             System.out.println(query);
-            User user = restTemplate.getForObject(query, User.class);
+            UserResponse userResponse = restTemplate.getForObject(query, UserResponse.class);
+            User user = userResponse.getUser();
             if (user != null) {
                 users.add(user);
             }
@@ -76,7 +84,16 @@ public class FindController {
                 .reduce("", (str, str2) -> str + "\n" + str2);
         System.out.println(result);
 
-        return users;
+        FindByTokenResponse response = new FindByTokenResponse();
+
+        if (!users.isEmpty()) {
+            response.setUser(users.get(0));
+            response.setMessages(notifications);
+        } else {
+            response.setError("No users found");
+        }
+
+        return response;
     }
 
     @RequestMapping(path = "/all")
@@ -87,12 +104,16 @@ public class FindController {
 
     @RequestMapping(path = "/findUserByToken")
     public @ResponseBody
-    User findUserByToken(@RequestParam String token) {
-        User user = findUserRepository.findByToken(token);
+    UserResponse findUserByToken(@RequestParam String token) {
+        User user = findUserRepository.findUserByToken(token);
+        UserResponse response = new UserResponse();
         if (user != null) {
-            return user;
+            response.setUser(user);
+            return response;
         } else {
-            return null;
+            response.setError("User not found");
         }
+
+        return response;
     }
 }

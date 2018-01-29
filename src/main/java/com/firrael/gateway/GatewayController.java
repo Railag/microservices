@@ -1,6 +1,7 @@
 package com.firrael.gateway;
 
-import com.firrael.base.User;
+import com.firrael.base.response.AddResponse;
+import com.firrael.base.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,19 +12,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/")
 public class GatewayController {
 
+    private final GatewayUserRepository gatewayUserRepository;
+
     @Autowired
-    private GatewayUserRepository gatewayUserRepository;
+    public GatewayController(GatewayUserRepository gatewayUserRepository) {
+        this.gatewayUserRepository = gatewayUserRepository;
+    }
 
     @RequestMapping(path = "/add")
     public @ResponseBody
-    String addNewUser(@RequestParam String name,
+    AddResponse addNewUser(@RequestParam String name,
                       @RequestParam String token,
                       @RequestParam(defaultValue = "") String application) {
 
         GatewayUser n = new GatewayUser(name, token, application);
         gatewayUserRepository.save(n);
 
-        return token;
+        AddResponse response = new AddResponse();
+        response.setToken(token);
+        return response;
     }
 
     @RequestMapping(path = "/all")
@@ -34,12 +41,15 @@ public class GatewayController {
 
     @RequestMapping(path = "/findUserByToken")
     public @ResponseBody
-    GatewayUser findUserByToken(@RequestParam String token) {
+    UserResponse findUserByToken(@RequestParam String token) {
         GatewayUser user = gatewayUserRepository.findByToken(token);
+        UserResponse response = new UserResponse();
         if (user != null) {
-            return user;
+            response.setUser(user);
         } else {
-            return null;
+            response.setError("No user found.");
         }
+
+        return response;
     }
 }

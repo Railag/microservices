@@ -13,7 +13,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     private long id;
+
+    @Column(unique = true)
     private String username;
+
     private String token;
 
     private String application;

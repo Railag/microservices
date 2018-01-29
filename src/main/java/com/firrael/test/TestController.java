@@ -1,5 +1,7 @@
 package com.firrael.test;
 
+import com.firrael.base.response.AddResponse;
+import com.firrael.base.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,24 +17,29 @@ public class TestController {
 
     @RequestMapping(path = "/add")
     public @ResponseBody
-    String addNewUser(@RequestParam String name,
+    AddResponse addNewUser(@RequestParam String name,
                       @RequestParam String token,
                       @RequestParam(defaultValue = "") String application) {
 
         TestUser n = new TestUser(name, token, application);
         testUserRepository.save(n);
 
-        return token;
+        AddResponse response = new AddResponse();
+        response.setToken(token);
+        return response;
     }
 
     @RequestMapping(path = "/findUserByToken")
     public @ResponseBody
-    TestUser findUserByToken(@RequestParam String token) {
+    UserResponse findUserByToken(@RequestParam String token) {
         TestUser user = testUserRepository.findByToken(token);
+        UserResponse response = new UserResponse();
         if (user != null) {
-            return user;
+            response.setUser(user);
         } else {
-            return null;
+            response.setError("No user found.");
         }
+
+        return response;
     }
 }
