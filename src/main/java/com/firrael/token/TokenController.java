@@ -1,6 +1,7 @@
 package com.firrael.token;
 
-import com.firrael.base.*;
+import com.firrael.base.Constants;
+import com.firrael.base.User;
 import com.firrael.base.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -30,11 +31,30 @@ public class TokenController {
     public @ResponseBody
     TokenResponse addNewUser(@RequestParam String name,
                              @RequestParam String password,
-                             @RequestParam(defaultValue = "") String application) {
+                             @RequestParam(defaultValue = "token") String application) {
+
+        if (name == null || name.isEmpty() || password == null || password.isEmpty()) {
+            TokenResponse response = new TokenResponse();
+            response.setError("Username or password is missing.");
+            return response;
+        }
 
         if (tokenAppInfoRepository.existsByUsername(name)) {
             TokenResponse response = new TokenResponse();
             response.setError("User already exists, try another name.");
+            return response;
+        }
+
+        boolean validApp = false;
+        for (String app : Constants.APPS_LIST) {
+            if (app.equalsIgnoreCase(application)) {
+                validApp = true;
+            }
+        }
+
+        if (!validApp) {
+            TokenResponse response = new TokenResponse();
+            response.setError("Invalid application.");
             return response;
         }
 
@@ -110,10 +130,17 @@ public class TokenController {
     public @ResponseBody
     TokenResponse login(@RequestParam String username,
                         @RequestParam String password) {
+
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            TokenResponse response = new TokenResponse();
+            response.setError("Username or password is missing.");
+            return response;
+        }
+
         TokenAppInfo info = tokenAppInfoRepository.findByUsername(username);
         if (info == null) {
             TokenResponse response = new TokenResponse();
-            response.setError("Invalid password");
+            response.setError("Invalid credentials");
             return response;
         }
 

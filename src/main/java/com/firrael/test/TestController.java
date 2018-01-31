@@ -18,8 +18,8 @@ public class TestController {
     @RequestMapping(path = "/add")
     public @ResponseBody
     AddResponse addNewUser(@RequestParam String name,
-                      @RequestParam String token,
-                      @RequestParam(defaultValue = "") String application) {
+                           @RequestParam String token,
+                           @RequestParam(defaultValue = "") String application) {
 
         TestUser n = new TestUser(name, token, application);
         testUserRepository.save(n);
@@ -41,5 +41,11 @@ public class TestController {
         }
 
         return response;
+    }
+
+    @RequestMapping(path = "/all")
+    public @ResponseBody
+    Iterable<TestUser> getAllUsers() {
+        return testUserRepository.findAll();
     }
 }

@@ -1,6 +1,7 @@
 package com.firrael.find;
 
-import com.firrael.base.*;
+import com.firrael.base.Group;
+import com.firrael.base.User;
 import com.firrael.base.response.AddResponse;
 import com.firrael.base.response.ApplicationResponse;
 import com.firrael.base.response.FindByTokenResponse;

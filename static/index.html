@@ -5,10 +5,38 @@
     <title>Microservices index</title>
 </head>
 <body>
-<form>
-    <input type="text" title="User name"/>
-    <input type="password" title="Password" />
-    <input type="submit"/>
+<form action="/token/add" method="get">
+    User Name: <input name="name" type="text"/> <br>
+    Password: <input name="password" type="password" title="Password"/> <br>
+    Application: <input name="application" type="text" title="Application"> <br>
+    <input type="submit" value="Add new user"/>
 </form>
+
+<br>
+http://localhost:9012/token/add?name=test&password=pass&application=token
+<br>
+
+<br>
+<form action="/find/findByToken" method="get">
+    Insert Token: <input name="token" type="text"/> <br>
+    <input type="submit" value="Find by Token"/>
+</form>
+<br>
+
+
+<br>
+http://localhost:9012/find/findByToken?token=$2a$12$2yhn7jx3ECaJN5bJs8X9cuJGwO1Jh3nbxH9kP/HzcnTYd6J4LNTU2
+
+<br>
+<br>
+<form action="/token/login" method="get">
+    User Name: <input name="username" type="text"/> <br>
+    Password: <input name="password" type="password" title="Password"/> <br>
+    <input type="submit" value="Login"/>
+</form>
+
+<br>
+http://localhost:9012/token/login?username=test&password=pass
+
 </body>
 </html>

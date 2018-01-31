@@ -1,6 +1,5 @@
 package com.firrael.base;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class SimpleResponse {
