@@ -19,7 +19,7 @@ public class FindUserRepository implements UserRepository {
     }
 
     private void log(String request, long result) {
-        log.info(String.format(request + " request %d", TimeUnit.NANOSECONDS.toSeconds(result)));
+        log.info(String.format(request + " request %d ms", TimeUnit.NANOSECONDS.toMillis(result)));
     }
 
     @Override

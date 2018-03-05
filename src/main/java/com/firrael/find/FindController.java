@@ -49,14 +49,16 @@ public class FindController {
 
     @RequestMapping(path = "/findByToken")
     public @ResponseBody
-    FindByTokenResponse findUsersByToken(@RequestParam String token) throws InvalidArgumentException {
+    FindByTokenResponse findUsersByToken(@RequestParam String token) {
 
         RestTemplate restTemplate = new RestTemplate();
 
         ApplicationResponse applicationResponse = restTemplate.getForObject(GATEWAY_HOST + "token/findApplicationByToken?token=" + token, ApplicationResponse.class);
         String application = applicationResponse.getApplication();
         if (application == null || application.isEmpty()) {
-            throw new InvalidArgumentException(new String[]{"No application provided"});
+            FindByTokenResponse errorResponse = new FindByTokenResponse();
+            errorResponse.setError("No token found");
+            return errorResponse;
         }
 
         Group group = Group.findGroupOfApplication(application);
